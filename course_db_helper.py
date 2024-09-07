@@ -27,3 +27,5 @@ def get_all_the_courses():
         finally:
             cursor.close()
             return courses
+    
+        
