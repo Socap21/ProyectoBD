@@ -1,7 +1,7 @@
 python-dotenv
-
 pandas
 xlrd
+openpyxl
 
 mysql-connector-python
 

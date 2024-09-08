@@ -4,6 +4,10 @@ from mysql.connector import Error
 
 # Función para insertar productos en la tabla productos
 def insert_products_in_bulk(df, table_name='productos'):
+    if df.empty:
+        print("El DataFrame de productos está vacío. No se insertaron datos.")
+        return
+
     connection = None
     cursor = None
 
@@ -20,7 +24,7 @@ def insert_products_in_bulk(df, table_name='productos'):
 
             # Preparar la consulta de inserción
             insert_query = f"""
-            INSERT INTO {table_name} (NombreProducto, Categoría, Precio, Stock)
+            INSERT INTO {table_name} (NombreProducto, Categoria, Precio, Stock)
             VALUES (%s, %s, %s, %s)
             """
 
@@ -36,7 +40,7 @@ def insert_products_in_bulk(df, table_name='productos'):
             print(f"{cursor.rowcount} filas insertadas exitosamente en productos.")
 
     except Error as e:
-        print(f"Error: {e}")
+        print(f"Error al insertar productos: {e}")
         if connection:
             connection.rollback()
 
@@ -49,6 +53,10 @@ def insert_products_in_bulk(df, table_name='productos'):
 
 # Función para insertar clientes en la tabla clientes
 def insert_clients_in_bulk(df, table_name='clientes'):
+    if df.empty:
+        print("El DataFrame de clientes está vacío. No se insertaron datos.")
+        return
+
     connection = None
     cursor = None
 
@@ -65,7 +73,7 @@ def insert_clients_in_bulk(df, table_name='clientes'):
 
             # Preparar la consulta de inserción
             insert_query = f"""
-            INSERT INTO {table_name} (Nombre, Apellido, Email, Teléfono)
+            INSERT INTO {table_name} (Nombre, Apellido, Email, Telefono)
             VALUES (%s, %s, %s, %s)
             """
 
@@ -81,7 +89,7 @@ def insert_clients_in_bulk(df, table_name='clientes'):
             print(f"{cursor.rowcount} filas insertadas exitosamente en clientes.")
 
     except Error as e:
-        print(f"Error: {e}")
+        print(f"Error al insertar clientes: {e}")
         if connection:
             connection.rollback()
 
