@@ -1,6 +1,29 @@
 import streamlit as st
 import pandas as pd
-import io
+import os
+import mysql.connector
+from mysql.connector import Error
+from dotenv import load_dotenv 
+load_dotenv()
+
+# Función para conectarse a la base de datos
+def conectar_db():
+    try:
+        connection = mysql.connector.connect(
+            host=os.getenv("DB_HOST"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
+            database=os.getenv("DB_NAME")
+        )
+        if connection.is_connected():
+            st.success("Conexión exitosa a la base de datos")
+            return connection
+    except Error as e:
+        st.error(f"Error al conectar a la base de datos: {e}")
+        return None
+
+# Conectar a la base de datos al iniciar la app
+conexion = conectar_db()
 
 # Título de la app
 st.title("Tienda Tecnología - Carga de Tablas Excel")
