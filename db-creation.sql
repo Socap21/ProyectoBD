@@ -1,26 +1,21 @@
--- Script para crear la base de datos y las tablas necesarias
+CREATE DATABASE IF NOT EXISTS tienda_tecnologia;
 
-CREATE DATABASE IF NOT EXISTS college_manager;
+USE tienda_tecnologia;
 
-USE professor_assistant_db;
-
--- Tabla para almacenar la información del curso
-CREATE TABLE IF NOT EXISTS courses (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    start_date DATE NOT NULL,
-    end_date DATE NOT NULL,
-    cut1_percentage FLOAT NOT NULL,
-    cut2_percentage FLOAT NOT NULL,
-    cut3_percentage FLOAT NOT NULL
+-- Tabla para almacenar la información de productos
+CREATE TABLE IF NOT EXISTS productos (
+    ProductoID INT AUTO_INCREMENT PRIMARY KEY,
+    NombreProducto VARCHAR(255) NOT NULL,
+    Categoría VARCHAR(255) NOT NULL,
+    Precio DECIMAL(10, 2) NOT NULL,
+    Stock INT NOT NULL
 );
 
--- Tabla para almacenar la lista de estudiantes
-CREATE TABLE IF NOT EXISTS students (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    code VARCHAR(255) NOT NULL,
-    full_name VARCHAR(255) NOT NULL,
-    emails VARCHAR(255) NOT NULL,
-    course_id INT,
-    FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
+-- Tabla para almacenar la información de clientes
+CREATE TABLE IF NOT EXISTS clientes (
+    ClienteID INT AUTO_INCREMENT PRIMARY KEY,
+    Nombre VARCHAR(255) NOT NULL,
+    Apellido VARCHAR(255) NOT NULL,
+    Email VARCHAR(255) NOT NULL,
+    Teléfono VARCHAR(20)
 );

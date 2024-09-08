@@ -2,8 +2,8 @@ import os
 import mysql.connector
 from mysql.connector import Error
 
-
-def get_all_the_courses():
+def get_all_the_products():
+    """Función para obtener todos los productos de la base de datos"""
     connection = mysql.connector.connect(
         host=os.getenv("DB_HOST"),
         user=os.getenv("DB_USER"),
@@ -11,21 +11,21 @@ def get_all_the_courses():
         database=os.getenv("DB_NAME")
     )
 
-    courses = []
+    products = []
 
     if connection.is_connected():
         try:
             cursor = connection.cursor(dictionary=True)
             query = """
-                SELECT c.id, c.name FROM courses as c;
+                SELECT p.ProductoID, p.NombreProducto, p.Categoría, p.Precio, p.Stock FROM productos as p;
             """
             cursor.execute(query)
-            courses = cursor.fetchall()
-            print(courses)
+            products = cursor.fetchall()
+            print(products)
         except Error as e:
-            print(f"Error while getting courses from database: {e}")
+            print(f"Error al obtener los productos de la base de datos: {e}")
         finally:
             cursor.close()
-            return courses
+            return products
     
         
