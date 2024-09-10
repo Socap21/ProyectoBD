@@ -25,5 +25,15 @@ CREATE TABLE IF NOT EXISTS clientes (
     CHECK (email LIKE '%_@__%.__%')  -- Verifica que el email tenga un formato básico válido
 );
 
+CREATE TABLE Pedidos (
+    PedidoID INT AUTO_INCREMENT PRIMARY KEY,  -- Identificador único para cada pedido
+    ClienteID INT,                            -- Hace referencia al cliente que realiza la compra
+    ProductoID INT,                           -- Hace referencia al producto comprado
+    Cantidad INT,                             -- Cantidad de productos comprados
+    Fecha DATE,                               -- Fecha del pedido
+    FOREIGN KEY (ClienteID) REFERENCES Clientes(ClienteID),  -- Relación con la tabla Clientes
+    FOREIGN KEY (ProductoID) REFERENCES Productos(ProductoID) -- Relación con la tabla Productos
+);
+
 -- Opcional: Crear índices adicionales para optimizar búsquedas por nombre y apellido
 CREATE INDEX idx_nombre_apellido ON clientes (nombre, apellido);
