@@ -35,5 +35,6 @@ CREATE TABLE Pedidos (
     FOREIGN KEY (ProductoID) REFERENCES Productos(ProductoID) -- Relación con la tabla Productos
 );
 
+
 -- Opcional: Crear índices adicionales para optimizar búsquedas por nombre y apellido
 CREATE INDEX idx_nombre_apellido ON clientes (nombre, apellido);
