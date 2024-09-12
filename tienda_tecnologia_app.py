@@ -3,10 +3,11 @@ import pandas as pd
 import os
 import mysql.connector
 from mysql.connector import Error
-from dotenv import load_dotenv 
+from dotenv import load_dotenv
+
+
 load_dotenv()
 
-# Función para conectarse a la base de datos
 def conectar_db():
     try:
         connection = mysql.connector.connect(
@@ -22,66 +23,72 @@ def conectar_db():
         st.error(f"Error al conectar a la base de datos: {e}")
         return None
 
-# Conectar a la base de datos al iniciar la app
+
+
+def insert_into_db(df_combinado):
+    
+    
+    connection = conectar_db()
+    if connection is None:
+        return
+
+    cursor = connection.cursor()
+
+    insert_query = """
+    INSERT INTO clientes_pedidos (ID_Cliente, Nombre, Apellido, Email, Telefono, ID_Pedido, Producto, Precio_ud, Cantidad, Precio_total)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    """
+    
+    data_to_insert = df_combinado[['ID_Cliente', 'Nombre', 'Apellido', 'Email', 'Telefono', 'ID_Pedido', 'Producto', 'Precio_ud', 'Cantidad', 'Precio_total']].to_records(index=False).tolist()
+    
+    try:
+        cursor.executemany(insert_query, data_to_insert)
+        connection.commit()
+        st.success(f"{cursor.rowcount} filas insertadas exitosamente en clientes_pedidos.")
+    except Error as e:
+        connection.rollback()
+        st.error(f"Error al insertar datos: {e}")
+    finally:
+        cursor.close()
+        connection.close()
+
+
 conexion = conectar_db()
 
-# Título de la app
 st.title("Tienda Tecnología - Carga de Tablas Excel")
 
-# Instrucción para el usuario
 st.write("Arrastra y suelta tus archivos Excel aquí para combinarlos:")
 
-# Subida de archivos
-uploaded_file1 = st.file_uploader("Cargar el primer archivo Excel", type=["xlsx"])
-uploaded_file2 = st.file_uploader("Cargar el segundo archivo Excel", type=["xlsx"])
+uploaded_files = st.file_uploader("Cargar el primer archivo Excel", type=["xlsx"], accept_multiple_files=True)
 
-# Función para combinar los archivos
-def combinar_archivos(file1, file2):
-    if file1 is not None and file2 is not None:
-        try:
-            # Leer los archivos Excel
-            df1 = pd.read_excel(file1)
-            df2 = pd.read_excel(file2)
+if len(uploaded_files) == 2:
+    try:
+        file1 = uploaded_files[0]
+        file2 = uploaded_files[1]
+
+        dataframe_pedidos = pd.read_excel(file1)
+        dataframe_clientes = pd.read_excel(file2)
+        st.dataframe(dataframe_pedidos)
+        st.dataframe(dataframe_clientes)
+
+        
+        if 'ID_Cliente' not in dataframe_pedidos.columns or 'ID_Cliente' not in dataframe_clientes.columns:
+            st.error("La columna 'ID_Cliente' no está presente en ambos archivos Excel.")
+        else:
             
-            # Verificar que ambos DataFrames tienen las mismas columnas
-            if list(df1.columns) != list(df2.columns):
-                st.error("Los archivos no tienen las mismas columnas. No se pueden combinar.")
-                return None
+            dataframe_combinado = pd.merge(dataframe_clientes, dataframe_pedidos, on='ID_Cliente', how='inner')
+
             
-            # Combinar los archivos
-            df_combinado = pd.concat([df1, df2], ignore_index=True)
+            st.dataframe(dataframe_combinado)
 
-            # Mostrar el dataframe combinado
-            st.write("Archivos combinados:")
-            st.dataframe(df_combinado)
-
-            return df_combinado
-
-        except Exception as e:
-            st.error(f"Error al procesar los archivos: {e}")
-            return None
-
-# Función para descargar el archivo combinado
-def descargar_archivo(df):
-    # Crear un archivo Excel en memoria
-    buffer = io.BytesIO()
-    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-        df.to_excel(writer, index=False, sheet_name='Hoja1')
-        writer.save()
-        buffer.seek(0)
+            
+            if st.button('Guardar en la Base de Datos'):
+                insert_into_db(dataframe_combinado)
     
-    # Enlace de descarga
-    st.download_button(
-        label="Descargar archivo combinado",
-        data=buffer,
-        file_name="archivo_combinado.xlsx",
-        mime="application/vnd.ms-excel"
-    )
+    except Exception as e:
+        st.error(f"Error al procesar los archivos Excel: {e}")
 
-# Combinación y visualización de los archivos
-if uploaded_file1 and uploaded_file2:
-    df_combinado = combinar_archivos(uploaded_file1, uploaded_file2)
-    if df_combinado is not None:
-        descargar_archivo(df_combinado)
 else:
-    st.info("Por favor, carga ambos archivos para combinarlos.")
+    st.warning("Por favor, sube exactamente dos archivos Excel.")
+
+
