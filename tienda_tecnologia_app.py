@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 def conectar_db():
     try:
         connection = mysql.connector.connect(
@@ -39,6 +40,7 @@ def insert_into_db(df_combinado):
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
     
+   
     data_to_insert = df_combinado[['ID_Cliente', 'Nombre', 'Apellido', 'Email', 'Telefono', 'ID_Pedido', 'Producto', 'Precio_ud', 'Cantidad', 'Precio_total']].to_records(index=False).tolist()
     
     try:
@@ -53,11 +55,14 @@ def insert_into_db(df_combinado):
         connection.close()
 
 
+
 conexion = conectar_db()
 
 st.title("Tienda Tecnología - Carga de Tablas Excel")
 
+
 st.write("Arrastra y suelta tus archivos Excel aquí para combinarlos:")
+
 
 uploaded_files = st.file_uploader("Cargar el primer archivo Excel", type=["xlsx"], accept_multiple_files=True)
 
@@ -66,10 +71,13 @@ if len(uploaded_files) == 2:
         file1 = uploaded_files[0]
         file2 = uploaded_files[1]
 
+        
         dataframe_pedidos = pd.read_excel(file1)
         dataframe_clientes = pd.read_excel(file2)
         st.dataframe(dataframe_pedidos)
         st.dataframe(dataframe_clientes)
+
+        
 
         
         if 'ID_Cliente' not in dataframe_pedidos.columns or 'ID_Cliente' not in dataframe_clientes.columns:
@@ -79,8 +87,11 @@ if len(uploaded_files) == 2:
             dataframe_combinado = pd.merge(dataframe_clientes, dataframe_pedidos, on='ID_Cliente', how='inner')
 
             
+            
             st.dataframe(dataframe_combinado)
 
+
+            
             
             if st.button('Guardar en la Base de Datos'):
                 insert_into_db(dataframe_combinado)
@@ -90,5 +101,3 @@ if len(uploaded_files) == 2:
 
 else:
     st.warning("Por favor, sube exactamente dos archivos Excel.")
-
-
